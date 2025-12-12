@@ -84,15 +84,6 @@ export default function AudioPlayer({ src, onAudioEnded }: AudioPlayerProps) {
     setIsPlaying(!isPlaying);
   };
 
-  const stop = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.pause();
-    audio.currentTime = 0;
-    setIsPlaying(false);
-    setCurrentTime(0);
-  };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
@@ -135,21 +126,7 @@ export default function AudioPlayer({ src, onAudioEnded }: AudioPlayerProps) {
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-center gap-4">
-          <button
-            onClick={stop}
-            className="p-3 rounded-full bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors"
-            aria-label="Stop"
-          >
-            <svg
-              className="w-6 h-6 text-zinc-700 dark:text-zinc-300"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M5 5h10v10H5V5z" />
-            </svg>
-          </button>
-
+        <div className="flex items-center justify-center">
           <button
             onClick={togglePlayPause}
             className="p-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-lg"

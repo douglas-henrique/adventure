@@ -9,7 +9,7 @@ const nyImages = [
   'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80',
   'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80',
   'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=1920&q=80',
-  'https://images.unsplash.com/photo-1534430480872-3490d3c4e7c5?w=1920&q=80',
+  'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1920&q=80', // Replaced broken image
   'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1920&q=80',
   'https://images.unsplash.com/photo-1514525253161-7a46d19cd81e?w=1920&q=80',
 ];

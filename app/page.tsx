@@ -15,46 +15,53 @@ interface Phase {
   youtubeId?: string;
   isYouTube?: boolean;
   backgroundImage?: string;
+  characterImage?: string;
 }
 
 const phases: Phase[] = [
   {
     id: 1,
     character: '', // Removed "Woody" name
-    text: 'Alguém quer falar com você',
+    text: 'Alguém quer falar com você', // Will only show after audio ends
     audio: '/audios/woody.mp3',
-    backgroundImage: 'https://atlantidasc.com.br/wp-content/uploads/2025/11/Disney-Pixar_Divulgacao.jpg', // Woody background - will show after audio ends
+    characterImage: 'https://atlantidasc.com.br/wp-content/uploads/2025/11/Disney-Pixar_Divulgacao.jpg',
   },
   {
     id: 2,
     character: 'Mike Wazowski',
-    text: 'Alguém quer falar com você',
+    text: 'Mike Wazowski quer falar com você',
     audio: '/audios/mike.mp3',
-    backgroundImage: 'https://i.pinimg.com/736x/c2/bd/97/c2bd97e498186f4b2f949e6de6a9f975.jpg', // Monsters Inc background
+    characterImage: 'https://i.pinimg.com/736x/c2/bd/97/c2bd97e498186f4b2f949e6de6a9f975.jpg',
   },
   {
     id: 3,
     character: 'Stitch',
-    text: 'Alguém quer falar com você',
+    text: 'Stitch quer falar com você',
     audio: '/audios/stich.mp3',
-    backgroundImage: 'https://i.pinimg.com/736x/f7/0f/1e/f70f1e6cf74a7e79c6412daf64b238e2.jpg', // Lilo & Stitch background
+    characterImage: 'https://i.pinimg.com/736x/f7/0f/1e/f70f1e6cf74a7e79c6412daf64b238e2.jpg',
   },
   {
     id: 4,
     character: 'Relâmpago McQueen',
-    text: 'Alguém quer falar com você',
+    text: 'Relâmpago McQueen quer falar com você',
     audio: '/audios/relampago.mp3',
-    backgroundImage: 'https://lumiere-a.akamaihd.net/v1/images/cars80-1200x801_7b6d9330.jpeg?region=0,60,1200,677&width=960', // Cars background
+    characterImage: 'https://lumiere-a.akamaihd.net/v1/images/cars80-1200x801_7b6d9330.jpeg?region=0,60,1200,677&width=960',
   },
   {
     id: 5,
-    character: 'Mickey',
-    text: 'Alguém quer falar com você',
-    audio: '/audios/mickey.mp3',
-    backgroundImage: 'https://media.disneylandparis.com/d4th/pt-pt/images/hd18943_2027jul06_world_mickey-and-friends-minnie-donald-pluto-goofy-behind-castle-disneyland-paris_3-4_tcm851-266998.jpg', // Disney background
+    character: '',
+    text: 'Está pronta? Então abra a porta e escute a próxima pessoa.',
+    audio: undefined,
   },
   {
     id: 6,
+    character: 'Mickey',
+    text: 'Mickey quer falar com você',
+    audio: '/audios/mickey.mp3',
+    characterImage: 'https://media.disneylandparis.com/d4th/pt-pt/images/hd18943_2027jul06_world_mickey-and-friends-minnie-donald-pluto-goofy-behind-castle-disneyland-paris_3-4_tcm851-266998.jpg',
+  },
+  {
+    id: 7,
     character: '',
     text: '',
     youtubeId: 'vk6014HuxcE',
@@ -69,7 +76,10 @@ export default function Home() {
   // Reset audioFinished when phase changes
   useEffect(() => {
     const currentPhaseData = phases[currentPhase];
-    if (!currentPhaseData.isYouTube) {
+    if (!currentPhaseData.isYouTube && !currentPhaseData.audio) {
+      // For phases without audio (like the "ready" phase), enable next button immediately
+      setAudioFinished(true);
+    } else if (!currentPhaseData.isYouTube) {
       setAudioFinished(false);
     }
   }, [currentPhase]);
@@ -99,28 +109,39 @@ export default function Home() {
   const currentPhaseData = phases[currentPhase];
   const isYouTubePhase = currentPhaseData.isYouTube;
   const isFirstPhase = currentPhase === 0;
-  const showCharacterBackground = currentPhaseData.backgroundImage && 
-    (isFirstPhase ? audioFinished : true); // Show Woody background only after audio ends
+  // For Woody: show background only after audio ends
+  const showWoodyBackground = isFirstPhase && audioFinished && currentPhaseData.characterImage;
+  // For other phases: show background from the start if they have characterImage
+  const showOtherCharacterBackground = !isFirstPhase && !isYouTubePhase && currentPhaseData.characterImage;
+  const showAnyBackground = isYouTubePhase || showWoodyBackground || showOtherCharacterBackground;
 
   return (
     <div className={`flex min-h-screen flex-col items-center justify-center px-4 py-8 relative ${
-      isYouTubePhase || showCharacterBackground
+      showAnyBackground
         ? '' 
         : 'bg-gradient-to-br from-blue-50 to-purple-50 dark:from-zinc-900 dark:to-zinc-800'
     }`}>
       {/* Background Slideshow - Only for YouTube phase */}
       {isYouTubePhase && <BackgroundSlideshow />}
       
-      {/* Character Background - For phases with character images */}
-      {showCharacterBackground && currentPhaseData.backgroundImage && (
+      {/* Woody Background - Only after audio ends */}
+      {showWoodyBackground && (
         <CharacterBackground 
-          imageUrl={currentPhaseData.backgroundImage} 
+          imageUrl={currentPhaseData.characterImage!} 
+          alt="Woody background" 
+        />
+      )}
+      
+      {/* Other Character Backgrounds - From the start */}
+      {showOtherCharacterBackground && (
+        <CharacterBackground 
+          imageUrl={currentPhaseData.characterImage!} 
           alt={currentPhaseData.character || 'Character background'} 
         />
       )}
       
       <main className={`flex w-full max-w-2xl flex-col items-center justify-center space-y-6 sm:space-y-8 flex-1 relative z-10 ${
-        isYouTubePhase || showCharacterBackground ? 'text-white' : ''
+        showAnyBackground ? 'text-white' : ''
       }`}>
         {/* Volume Warning - Only on first phase */}
         {currentPhase === 0 && (
@@ -141,30 +162,6 @@ export default function Home() {
                 🔊 Aumente o volume do celular no máximo!
               </p>
             </div>
-          </div>
-        )}
-
-        {/* Character Name - Only show if not empty */}
-        {currentPhaseData.character && (
-          <h1 className={`text-3xl sm:text-4xl font-bold text-center mb-2 sm:mb-4 ${
-            isYouTubePhase || showCharacterBackground
-              ? 'text-white drop-shadow-lg' 
-              : 'text-zinc-800 dark:text-zinc-100'
-          }`}>
-            {currentPhaseData.character}
-          </h1>
-        )}
-
-        {/* Text - Only show if not empty */}
-        {currentPhaseData.text && (
-          <div className="text-center px-4">
-            <p className={`text-xl sm:text-2xl md:text-3xl font-semibold ${
-              isYouTubePhase || showCharacterBackground
-                ? 'text-white drop-shadow-lg' 
-                : 'text-zinc-700 dark:text-zinc-200'
-            }`}>
-              {currentPhaseData.text}
-            </p>
           </div>
         )}
 
@@ -196,8 +193,50 @@ export default function Home() {
               </div>
             </div>
           ) : currentPhaseData.audio ? (
-            <AudioPlayer src={currentPhaseData.audio} onAudioEnded={handleAudioEnded} />
-          ) : null}
+            <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
+              {/* Text Label - Show immediately for all phases */}
+              {currentPhaseData.text && (
+                <div className="text-center px-4">
+                  <p className={`text-lg sm:text-xl md:text-2xl font-semibold ${
+                    showAnyBackground
+                      ? 'text-white drop-shadow-lg'
+                      : 'text-zinc-700 dark:text-zinc-200'
+                  }`}>
+                    {currentPhaseData.text}
+                  </p>
+                </div>
+              )}
+              
+              {/* Character Image - Above audio player */}
+              {/* For Woody: only show after audio ends. For others: show immediately */}
+              {currentPhaseData.characterImage && (
+                (isFirstPhase ? audioFinished : true) && (
+                  <div className="relative w-full max-w-40 sm:max-w-48 aspect-square rounded-lg overflow-hidden shadow-xl">
+                    <Image
+                      src={currentPhaseData.characterImage}
+                      alt={currentPhaseData.character || 'Personagem'}
+                      fill
+                      className="object-cover"
+                      priority
+                      unoptimized
+                    />
+                  </div>
+                )
+              )}
+              
+              {/* Audio Player */}
+              <AudioPlayer src={currentPhaseData.audio} onAudioEnded={handleAudioEnded} />
+            </div>
+          ) : (
+            // Phase without audio (like "ready" phase)
+            currentPhaseData.text && (
+              <div className="text-center px-4">
+                <p className="text-lg sm:text-xl md:text-2xl font-semibold text-zinc-700 dark:text-zinc-200">
+                  {currentPhaseData.text}
+                </p>
+              </div>
+            )
+          )}
         </div>
       </main>
 
@@ -209,7 +248,7 @@ export default function Home() {
           className={`flex-1 py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-semibold text-base sm:text-lg transition-all ${
             currentPhase === 0
               ? 'bg-zinc-300 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-500 cursor-not-allowed'
-              : isYouTubePhase || showCharacterBackground
+              : showAnyBackground
               ? 'bg-blue-600/90 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
               : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
           }`}
@@ -218,7 +257,7 @@ export default function Home() {
         </button>
 
         <div className={`text-sm sm:text-base font-medium px-2 ${
-          isYouTubePhase || showCharacterBackground
+          showAnyBackground
             ? 'text-white drop-shadow-lg'
             : 'text-zinc-600 dark:text-zinc-400'
         }`}>
@@ -231,7 +270,7 @@ export default function Home() {
           className={`flex-1 py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-semibold text-base sm:text-lg transition-all ${
             currentPhase === phases.length - 1 || !audioFinished
               ? 'bg-zinc-300 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-500 cursor-not-allowed'
-              : isYouTubePhase || showCharacterBackground
+              : showAnyBackground
               ? 'bg-blue-600/90 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
               : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
           }`}

@@ -52,8 +52,10 @@ export default function YouTubePlayer({ videoId, onVideoEnd }: YouTubePlayerProp
             events: {
               onReady: () => {
                 setIsReady(true);
-                // Start playing automatically
-                playerRef.current?.playVideo();
+                // Start playing automatically when ready (user already clicked "Next" button)
+                setTimeout(() => {
+                  playerRef.current?.playVideo();
+                }, 100);
               },
               onStateChange: (event: any) => {
                 // YouTube player states: -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (cued)
@@ -82,7 +84,10 @@ export default function YouTubePlayer({ videoId, onVideoEnd }: YouTubePlayerProp
           events: {
             onReady: () => {
               setIsReady(true);
-              playerRef.current?.playVideo();
+              // Start playing automatically when ready (user already clicked "Next" button)
+              setTimeout(() => {
+                playerRef.current?.playVideo();
+              }, 100);
             },
             onStateChange: (event: any) => {
               if (event.data === window.YT.PlayerState.ENDED) {
